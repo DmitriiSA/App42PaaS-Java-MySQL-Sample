@@ -1,0 +1,44 @@
+---
+version: '3'
+services:
+    mysql:
+      image: mysql:8.0
+      container_name: app42-mysql
+      environment:
+        MYSQL_ROOT_PASSWORD: password
+        MYSQL_DATABASE: dd
+        MYSQL_USER: acp4pogynvaeidfj
+        MYSQL_PASSWORD: jc31d2qyy7h9jv5jn1u9uosjksxzaizw
+      volumes:
+        - mysql-data:/var/lib/mysql
+      ports:
+        - "3306:3306"
+
+    mvn:
+        build:
+            context: ./
+            dockerfile: dockerfile
+        volumes:
+          - app:/tmp/app
+
+    tomcat:
+        image: tomcat:9.0.105-jre11-temurin-noble
+        ports:
+           - '8880:8080'
+           - '442:443'
+        volumes:
+           - app:/usr/local/tomcat/webapps
+#          - './app:/usr/local/tomcat/webapps'
+        depends_on:
+            - mysql
+            - mvn
+        links:
+          - mysql
+        environment:
+          SPRING_DATASOURCE_URL: jdbc:mysql://app42-mysql:3306/dd?useSSL=false&serverTimezone=UTC
+          SPRING_DATASOURCE_USERNAME: acp4pogynvaeidfj
+          SPRING_DATASOURCE_PASSWORD: jc31d2qyy7h9jv5jn1u9uosjksxzaizw
+
+volumes:
+   mysql-data:
+   app:
